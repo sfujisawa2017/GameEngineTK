@@ -57,6 +57,27 @@ void Game::Initialize(HWND window, int width, int height)
 		m_inputLayout.GetAddressOf());
 	// デバッグカメラの生成
 	m_debugCamera = std::make_unique<DebugCamera>(m_outputWidth, m_outputHeight);
+
+	// エフェクトファクトリ生成
+	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
+	// テクスチャの読み込みフォルダを指定
+	m_factory->SetDirectory(L"Resources");
+	// モデルの読み込み
+	m_modelSkydome = Model::CreateFromCMO(
+		m_d3dDevice.Get()
+		, L"Resources/skydome.cmo",
+		*m_factory
+	);
+	m_modelGround = Model::CreateFromCMO(
+		m_d3dDevice.Get()
+		, L"Resources/ground200m.cmo",
+		*m_factory
+	);
+	m_modelBall = Model::CreateFromCMO(
+		m_d3dDevice.Get()
+		, L"Resources/ball.cmo",
+		*m_factory
+	);
 }
 
 // Executes the basic game loop.
@@ -81,7 +102,22 @@ void Game::Update(DX::StepTimer const& timer)
 	// デバッグカメラの更新
 	m_debugCamera->Update();
 	
-
+	// 球のワールド行列を計算
+	// スケーリング
+	Matrix scalemat = Matrix::CreateScale(0.1f);
+	// ロール
+	Matrix rotmatZ = Matrix::CreateRotationZ(XMConvertToRadians(15.0f));
+	// ピッチ（仰角）
+	Matrix rotmatX = Matrix::CreateRotationX(XMConvertToRadians(15.0f));
+	// ヨー（方位角）
+	Matrix rotmatY = Matrix::CreateRotationY(XMConvertToRadians(15.0f));
+	// 回転行列の合成
+	Matrix rotmat = rotmatZ * rotmatX * rotmatY;
+	// 平行移動
+	Matrix transmat = Matrix::CreateTranslation(1.0f, 10.0f, 0);
+	// ワールド行列の合成
+	m_worldBall = scalemat * rotmat * transmat;
+	//m_worldBall = transmat * rotmat * scalemat;
 }
 
 // Draws the scene.
@@ -122,15 +158,34 @@ void Game::Render()
 	//	Vector3(0,0,0), Vector3(0,1,0));
 	// デバッグカメラからビュー行列を取得
 	m_view = m_debugCamera->GetCameraMatrix();
-
+	// 射影行列を生成
 	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(m_outputWidth) / float(m_outputHeight), 0.1f, 100.f);
+		float(m_outputWidth) / float(m_outputHeight), 0.1f, 500.f);
 
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
 
 	m_effect->Apply(m_d3dContext.Get());
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
+
+	// 天球を描画
+	m_modelSkydome->Draw(m_d3dContext.Get(),
+		*m_states,
+		Matrix::Identity,
+		m_view,
+		m_proj);
+	// 地面を描画
+	m_modelGround->Draw(m_d3dContext.Get(),
+		*m_states,
+		Matrix::Identity,
+		m_view,
+		m_proj);
+	// 球を描画
+	m_modelBall->Draw(m_d3dContext.Get(),
+		*m_states,
+		m_worldBall,
+		m_view,
+		m_proj);
 
 	m_batch->Begin();
 
