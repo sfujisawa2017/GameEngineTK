@@ -11,6 +11,7 @@
 #include <CommonStates.h>
 #include <SimpleMath.h>
 #include <Model.h>
+#include <Keyboard.h>
 #include "DebugCamera.h"
 
 // A basic game implementation that creates a D3D11 device and
@@ -86,6 +87,17 @@ private:
 	std::unique_ptr<DirectX::Model> m_modelSkydome;
 	std::unique_ptr<DirectX::Model> m_modelGround;
 	std::unique_ptr<DirectX::Model> m_modelBall;
+	std::unique_ptr<DirectX::Model> m_modelHead;
 	// 球のワールド行列
-	DirectX::SimpleMath::Matrix m_worldBall;
+	DirectX::SimpleMath::Matrix m_worldBall[20];
+	// 角度
+	float m_AngleBall;
+	// キーボード
+	std::unique_ptr<DirectX::Keyboard> keyboard;
+	// 自機の座標
+	DirectX::SimpleMath::Vector3 tank_pos;
+	// 自機の回転角
+	float tank_angle;
+	// 自機のワールド行列
+	DirectX::SimpleMath::Matrix tank_world;
 };
