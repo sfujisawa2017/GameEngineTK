@@ -13,6 +13,7 @@
 #include <Model.h>
 #include <Keyboard.h>
 #include "DebugCamera.h"
+#include "FollowCamera.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -100,4 +101,7 @@ private:
 	float tank_angle;
 	// 自機のワールド行列
 	DirectX::SimpleMath::Matrix tank_world;
+	// カメラ
+	std::unique_ptr<FollowCamera> m_Camera;
+
 };

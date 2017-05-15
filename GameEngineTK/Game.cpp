@@ -89,6 +89,10 @@ void Game::Initialize(HWND window, int width, int height)
 	keyboard = std::make_unique<Keyboard>();
 
 	tank_angle = 0.0f;
+
+	// カメラの生成
+	m_Camera = std::make_unique<FollowCamera>(
+		m_outputWidth, m_outputHeight);
 }
 
 // Executes the basic game loop.
@@ -204,6 +208,16 @@ void Game::Update(DX::StepTimer const& timer)
 		// ワールド行列を合成
 		tank_world = rotmat * transmat;
 	}
+
+	{// 追従カメラ
+		m_Camera->SetTargetPos(tank_pos);
+		m_Camera->SetTargetAngle(tank_angle);
+
+		m_Camera->Update();
+		m_view = m_Camera->GetView();
+		m_proj = m_Camera->GetProj();
+	}
+
 }
 
 // Draws the scene.
@@ -243,10 +257,27 @@ void Game::Render()
 	//m_view = Matrix::CreateLookAt(Vector3(0, 2.f, 2.f),
 	//	Vector3(0,0,0), Vector3(0,1,0));
 	// デバッグカメラからビュー行列を取得
-	m_view = m_debugCamera->GetCameraMatrix();
-	// 射影行列を生成
-	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(m_outputWidth) / float(m_outputHeight), 0.1f, 500.f);
+	//m_view = m_debugCamera->GetCameraMatrix();
+	//// カメラの位置（視点座標）
+	//Vector3 eyepos(0,0,5.0f);
+	//// どこのみるのか（注視点/参照点)
+	//Vector3 refpos(0, 0, 0);
+	//// 上方向ベクトル
+	//Vector3 upvec(1, -1, 0);
+	//upvec.Normalize();
+	//// ビュー行列を生成
+	//m_view = Matrix::CreateLookAt(eyepos, refpos, upvec);
+	// 垂直方向視野角
+	//float fovY = XMConvertToRadians(60.0f);
+	//// 画面横幅と縦幅の比率
+	//float aspect = (float)m_outputWidth / m_outputHeight;
+	//// 手前の表示限界距離
+	//float nearclip = 0.1f;
+	//// 奥の表示限界距離
+	//float farclip = 1000.0f;
+	//// 射影行列を生成
+	//m_proj = Matrix::CreatePerspectiveFieldOfView(
+	//fovY, aspect, nearclip, farclip);
 
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
