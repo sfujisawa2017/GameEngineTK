@@ -93,6 +93,8 @@ void Game::Initialize(HWND window, int width, int height)
 	// カメラの生成
 	m_Camera = std::make_unique<FollowCamera>(
 		m_outputWidth, m_outputHeight);
+	// カメラにキーボードをセット
+	m_Camera->SetKeyboard(keyboard.get());
 }
 
 // Executes the basic game loop.
