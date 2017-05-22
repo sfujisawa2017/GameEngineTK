@@ -38,6 +38,21 @@ void Game::Initialize(HWND window, int width, int height)
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
     */
 
+	// キーボードの生成
+	keyboard = std::make_unique<Keyboard>();
+
+	// カメラの生成
+	m_Camera = std::make_unique<FollowCamera>(
+		m_outputWidth, m_outputHeight);
+	// カメラにキーボードをセット
+	m_Camera->SetKeyboard(keyboard.get());
+
+	// 3Dオブジェクトクラスの静的メンバを初期化
+	Obj3d::InitializeStatic(
+		m_Camera.get(),
+		m_d3dDevice,
+		m_d3dContext);
+
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionNormal>>(m_d3dContext.Get());
 
 	m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
@@ -78,23 +93,17 @@ void Game::Initialize(HWND window, int width, int height)
 		, L"Resources/ball.cmo",
 		*m_factory
 	);
-	m_modelHead = Model::CreateFromCMO(
-		m_d3dDevice.Get()
-		, L"Resources/head.cmo",
-		*m_factory
-	);
+	//m_modelHead = Model::CreateFromCMO(
+	//	m_d3dDevice.Get()
+	//	, L"Resources/head.cmo",
+	//	*m_factory
+	//);
 
 	m_AngleBall = 0.0f;
 
-	keyboard = std::make_unique<Keyboard>();
-
 	tank_angle = 0.0f;
 
-	// カメラの生成
-	m_Camera = std::make_unique<FollowCamera>(
-		m_outputWidth, m_outputHeight);
-	// カメラにキーボードをセット
-	m_Camera->SetKeyboard(keyboard.get());
+	
 }
 
 // Executes the basic game loop.
@@ -202,14 +211,24 @@ void Game::Update(DX::StepTimer const& timer)
 		tank_pos += moveV;
 	}
 
-	{// 自機のワールド行列を計算
-		// 回転行列
-		Matrix rotmat = Matrix::CreateRotationY(tank_angle);
-		// 平行移動行列
-		Matrix transmat = Matrix::CreateTranslation(tank_pos);
-		// ワールド行列を合成
-		tank_world = rotmat * transmat;
-	}
+	//{// 自機のワールド行列を計算
+	//	// 回転行列
+	//	Matrix rotmat = Matrix::CreateRotationY(tank_angle);
+	//	// 平行移動行列
+	//	Matrix transmat = Matrix::CreateTranslation(tank_pos);
+	//	// ワールド行列を合成
+	//	tank_world = rotmat * transmat;
+
+	//	// 自機のパーツ２を計算
+	//	// 回転行列(パーツ１からの回転分）
+	//	static float angle = 0.0f;
+	//	angle += 0.1f;
+	//	Matrix rotmat2 = Matrix::CreateRotationZ(XM_PIDIV2) * Matrix::CreateRotationY(angle);
+	//	// 平行移動行列(パーツ１からの平行移動分）
+	//	Matrix transmat2 = Matrix::CreateTranslation(Vector3(0,0.5f,0));
+	//	// ワールド行列を合成
+	//	tank2_world = rotmat2 * transmat2 * tank_world;
+	//}
 
 	{// 追従カメラ
 		m_Camera->SetTargetPos(tank_pos);
@@ -309,12 +328,19 @@ void Game::Render()
 			m_proj);
 	}
 
-	// 頭部を描画
-	m_modelHead->Draw(m_d3dContext.Get(),
-		*m_states,
-		tank_world,
-		m_view,
-		m_proj);
+	//// パーツ１を描画
+	//m_modelHead->Draw(m_d3dContext.Get(),
+	//	*m_states,
+	//	tank_world,
+	//	m_view,
+	//	m_proj);
+
+	//// パーツ２を描画
+	//m_modelHead->Draw(m_d3dContext.Get(),
+	//	*m_states,
+	//	tank2_world,
+	//	m_view,
+	//	m_proj);
 
 	m_batch->Begin();
 
