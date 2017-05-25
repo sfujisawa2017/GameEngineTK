@@ -23,6 +23,17 @@ class Game
 {
 public:
 
+	enum PLAYER_PARTS
+	{
+		PLAYER_PARTS_TOWER,	// 塔
+		PLAYER_PARTS_BASE,	// 基地
+		PLAYER_PARTS_ENGINE,	// エンジン
+		PLAYER_PARTS_FAN,	// 換気扇
+		PLAYER_PARTS_SCORE,	// 音符
+
+		PLAYER_PARTS_NUM
+	};
+
     Game();
 
     // Initialization and management
@@ -87,7 +98,7 @@ private:
 	// エフェクトファクトリ
 	std::unique_ptr<DirectX::EffectFactory> m_factory;
 	// モデル
-	std::unique_ptr<DirectX::Model> m_modelSkydome;
+	Obj3d m_objSkydome;
 	std::unique_ptr<DirectX::Model> m_modelGround;
 	std::unique_ptr<DirectX::Model> m_modelBall;
 	//std::unique_ptr<DirectX::Model> m_modelHead;
@@ -106,9 +117,7 @@ private:
 	//// 
 	//DirectX::SimpleMath::Matrix tank2_world;
 	// 自機のオブジェクト
-	Obj3d m_ObjPlayer1;	// 親パーツ
-	Obj3d m_ObjPlayer2; // 子パーツ
-	//std::vector<Obj3d> m_ObjPlayer;
+	std::vector<Obj3d> m_ObjPlayer;
 
 	// カメラ
 	std::unique_ptr<FollowCamera> m_Camera;

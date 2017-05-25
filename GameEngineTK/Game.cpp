@@ -78,11 +78,8 @@ void Game::Initialize(HWND window, int width, int height)
 	// テクスチャの読み込みフォルダを指定
 	m_factory->SetDirectory(L"Resources");
 	// モデルの読み込み
-	m_modelSkydome = Model::CreateFromCMO(
-		m_d3dDevice.Get()
-		, L"Resources/skydome.cmo",
-		*m_factory
-	);
+	m_objSkydome.LoadModel(L"Resources/skydome.cmo");
+	
 	m_modelGround = Model::CreateFromCMO(
 		m_d3dDevice.Get()
 		, L"Resources/ground200m.cmo",
@@ -103,7 +100,12 @@ void Game::Initialize(HWND window, int width, int height)
 
 	tank_angle = 0.0f;
 
-	
+	m_ObjPlayer.resize(PLAYER_PARTS_NUM);
+	m_ObjPlayer[PLAYER_PARTS_TOWER].LoadModel(L"Resources/tower.cmo");
+	m_ObjPlayer[PLAYER_PARTS_BASE].LoadModel(L"Resources/base.cmo");
+	m_ObjPlayer[PLAYER_PARTS_ENGINE].LoadModel(L"Resources/engine.cmo");
+	m_ObjPlayer[PLAYER_PARTS_FAN].LoadModel(L"Resources/fan.cmo");
+	m_ObjPlayer[PLAYER_PARTS_SCORE].LoadModel(L"Resources/score.cmo");
 }
 
 // Executes the basic game loop.
@@ -239,6 +241,15 @@ void Game::Update(DX::StepTimer const& timer)
 		m_proj = m_Camera->GetProj();
 	}
 
+	m_objSkydome.Update();
+
+	for (std::vector<Obj3d>::iterator it = m_ObjPlayer.begin();
+		it != m_ObjPlayer.end();
+		it++)
+	{
+		it->Update();
+	}
+
 }
 
 // Draws the scene.
@@ -307,11 +318,7 @@ void Game::Render()
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
 
 	// 天球を描画
-	m_modelSkydome->Draw(m_d3dContext.Get(),
-		*m_states,
-		Matrix::Identity,
-		m_view,
-		m_proj);
+	m_objSkydome.Draw();
 	// 地面を描画
 	m_modelGround->Draw(m_d3dContext.Get(),
 		*m_states,
@@ -341,6 +348,13 @@ void Game::Render()
 	//	tank2_world,
 	//	m_view,
 	//	m_proj);
+
+	for (std::vector<Obj3d>::iterator it = m_ObjPlayer.begin();
+		it != m_ObjPlayer.end();
+		it++)
+	{
+		it->Draw();
+	}
 
 	m_batch->Begin();
 
