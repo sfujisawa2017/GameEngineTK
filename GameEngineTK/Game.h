@@ -27,7 +27,8 @@ public:
 	{
 		PLAYER_PARTS_TOWER,	// 塔
 		PLAYER_PARTS_BASE,	// 基地
-		PLAYER_PARTS_ENGINE,	// エンジン
+		PLAYER_PARTS_ENGINE_R,	// 右エンジン
+		PLAYER_PARTS_ENGINE_L,	// 左エンジン
 		PLAYER_PARTS_FAN,	// 換気扇
 		PLAYER_PARTS_SCORE,	// 音符
 
@@ -118,6 +119,8 @@ private:
 	//DirectX::SimpleMath::Matrix tank2_world;
 	// 自機のオブジェクト
 	std::vector<Obj3d> m_ObjPlayer;
+	// 自機のギミックに使う角度
+	float m_sinAngle;
 
 	// カメラ
 	std::unique_ptr<FollowCamera> m_Camera;

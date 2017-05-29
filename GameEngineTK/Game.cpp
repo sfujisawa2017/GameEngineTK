@@ -100,12 +100,55 @@ void Game::Initialize(HWND window, int width, int height)
 
 	tank_angle = 0.0f;
 
+	// 自機パーツのロード
 	m_ObjPlayer.resize(PLAYER_PARTS_NUM);
 	m_ObjPlayer[PLAYER_PARTS_TOWER].LoadModel(L"Resources/tower.cmo");
 	m_ObjPlayer[PLAYER_PARTS_BASE].LoadModel(L"Resources/base.cmo");
-	m_ObjPlayer[PLAYER_PARTS_ENGINE].LoadModel(L"Resources/engine.cmo");
+	m_ObjPlayer[PLAYER_PARTS_ENGINE_R].LoadModel(L"Resources/engine.cmo");
+	m_ObjPlayer[PLAYER_PARTS_ENGINE_L].LoadModel(L"Resources/engine.cmo");
 	m_ObjPlayer[PLAYER_PARTS_FAN].LoadModel(L"Resources/fan.cmo");
 	m_ObjPlayer[PLAYER_PARTS_SCORE].LoadModel(L"Resources/score.cmo");
+	// 親子関係の構築（子供に親をセット）
+	m_ObjPlayer[PLAYER_PARTS_BASE].SetObjParent(
+		&m_ObjPlayer[PLAYER_PARTS_TOWER]);
+
+	m_ObjPlayer[PLAYER_PARTS_SCORE].SetObjParent(
+		&m_ObjPlayer[PLAYER_PARTS_BASE]);
+
+	m_ObjPlayer[PLAYER_PARTS_ENGINE_R].SetObjParent(
+		&m_ObjPlayer[PLAYER_PARTS_TOWER]);
+	m_ObjPlayer[PLAYER_PARTS_ENGINE_L].SetObjParent(
+		&m_ObjPlayer[PLAYER_PARTS_TOWER]);
+
+	m_ObjPlayer[PLAYER_PARTS_FAN].SetObjParent(
+		&m_ObjPlayer[PLAYER_PARTS_TOWER]);
+
+	// 親からのオフセット（ローカルの座標ずれ）
+	m_ObjPlayer[PLAYER_PARTS_TOWER].SetScale(
+		Vector3(2, 2, 2));
+
+	m_ObjPlayer[PLAYER_PARTS_BASE].SetTranslation(
+		Vector3(0, 0.7f, 0));
+
+	m_ObjPlayer[PLAYER_PARTS_SCORE].SetTranslation(
+		Vector3(0, 1.0f, 0));
+	m_ObjPlayer[PLAYER_PARTS_SCORE].SetScale(
+		Vector3(2, 2, 2));
+
+	m_ObjPlayer[PLAYER_PARTS_ENGINE_R].SetTranslation(
+		Vector3(0.22f, 0.3f, 0.22f));
+	m_ObjPlayer[PLAYER_PARTS_ENGINE_R].SetRotation(
+		Vector3(0, XMConvertToRadians(45), 0));
+
+	m_ObjPlayer[PLAYER_PARTS_ENGINE_L].SetTranslation(
+		Vector3(-0.22f, 0.3f, 0.22f));
+	m_ObjPlayer[PLAYER_PARTS_ENGINE_L].SetRotation(
+		Vector3(0, XMConvertToRadians(-45), 0));
+
+	m_ObjPlayer[PLAYER_PARTS_FAN].SetTranslation(
+		Vector3(0, 0.3f, 1.0f));
+
+	m_sinAngle = 0.0f;
 }
 
 // Executes the basic game loop.
@@ -170,21 +213,44 @@ void Game::Update(DX::StepTimer const& timer)
 		m_worldBall[10+i] = rotmat * transmat;
 	}
 
+	// 自機パーツのギミック
+	{
+		// 自機の角度を変動
+		Vector3 angle;
+
+		angle = m_ObjPlayer[PLAYER_PARTS_SCORE].GetRotation();
+		m_ObjPlayer[PLAYER_PARTS_SCORE].SetRotation(
+			angle + Vector3(0.2f,0.1f,0));
+
+		// サインの引数の角度がだんだん増える
+		m_sinAngle += 0.1f;
+		// ファンの角度がいったりきたりする(-1～+1)
+		float fan_angle = sinf(m_sinAngle) * 3.0f;
+		/*m_ObjPlayer[PLAYER_PARTS_FAN].SetRotation(
+			Vector3(0, 0, fan_angle));*/
+		m_ObjPlayer[PLAYER_PARTS_FAN].SetTranslation(
+			Vector3(sinf(m_sinAngle), 0, cosf(m_sinAngle)*3.0f));
+	}
+
 	// キーボードの状態を取得
 	Keyboard::State g_key = keyboard->GetState();
 	
 	// Aキーを押している間
 	if (g_key.A)
 	{		
-		// 自機の座標を移動
-		tank_angle += 0.03f;
+		// 自機の角度を変動
+		float angle = m_ObjPlayer[0].GetRotation().y;
+		m_ObjPlayer[0].SetRotation(
+			Vector3(0,angle + 0.03f,0));
 	}
 
 	// Dキーを押している間
 	if (g_key.D)
 	{
-		// 自機の座標を移動
-		tank_angle += -0.03f;
+		// 自機の角度を変動
+		float angle = m_ObjPlayer[0].GetRotation().y;
+		m_ObjPlayer[0].SetRotation(
+			Vector3(0, angle - 0.03f, 0));
 	}
 
 	// Wキーを押している間
@@ -193,12 +259,14 @@ void Game::Update(DX::StepTimer const& timer)
 		// 移動ベクトル
 		Vector3 moveV(0, 0, -0.1f);
 		// 今の角度に合わせて移動ベクトルを回転
-		//moveV = Vector3::TransformNormal(moveV, tank_world);
 		// 回転行列
-		Matrix rotmat = Matrix::CreateRotationY(tank_angle);
+		float angle = m_ObjPlayer[0].GetRotation().y;
+		Matrix rotmat = Matrix::CreateRotationY(angle);
 		moveV = Vector3::TransformNormal(moveV, rotmat);
 		// 自機の座標を移動
-		tank_pos += moveV;
+		Vector3 pos = m_ObjPlayer[0].GetTranslation();
+		pos += moveV;
+		m_ObjPlayer[0].SetTranslation(pos);
 	}
 
 	// Sキーを押している間
@@ -206,11 +274,14 @@ void Game::Update(DX::StepTimer const& timer)
 	{
 		// 移動ベクトル
 		Vector3 moveV(0, 0, +0.1f);
-		// 今の角度に合わせて移動ベクトルを回転
-		Matrix rotmat = Matrix::CreateRotationY(tank_angle);
+		// 回転行列
+		float angle = m_ObjPlayer[0].GetRotation().y;
+		Matrix rotmat = Matrix::CreateRotationY(angle);
 		moveV = Vector3::TransformNormal(moveV, rotmat);
 		// 自機の座標を移動
-		tank_pos += moveV;
+		Vector3 pos = m_ObjPlayer[0].GetTranslation();
+		pos += moveV;
+		m_ObjPlayer[0].SetTranslation(pos);
 	}
 
 	//{// 自機のワールド行列を計算
