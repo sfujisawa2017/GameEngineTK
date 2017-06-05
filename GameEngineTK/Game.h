@@ -16,6 +16,7 @@
 #include "FollowCamera.h"
 #include "Obj3d.h"
 #include <vector>
+#include "Player.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -23,17 +24,7 @@ class Game
 {
 public:
 
-	enum PLAYER_PARTS
-	{
-		PLAYER_PARTS_TOWER,	// 塔
-		PLAYER_PARTS_BASE,	// 基地
-		PLAYER_PARTS_ENGINE_R,	// 右エンジン
-		PLAYER_PARTS_ENGINE_L,	// 左エンジン
-		PLAYER_PARTS_FAN,	// 換気扇
-		PLAYER_PARTS_SCORE,	// 音符
-
-		PLAYER_PARTS_NUM
-	};
+	
 
     Game();
 
@@ -119,8 +110,7 @@ private:
 	//DirectX::SimpleMath::Matrix tank2_world;
 	// 自機のオブジェクト
 	std::vector<Obj3d> m_ObjPlayer;
-	// 自機のギミックに使う角度
-	float m_sinAngle;
+	
 
 	// カメラ
 	std::unique_ptr<FollowCamera> m_Camera;
