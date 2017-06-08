@@ -35,6 +35,10 @@ void FollowCamera::Update()
 		}
 	}
 
+	// ’Ç]‘ÎÛ‚ÌÀ•W“™İ’è
+	SetTargetPos(m_Player->GetTrans());
+	SetTargetAngle(m_Player->GetRot().y);
+
 	if (isFPS)
 	{ // FPSƒJƒƒ‰
 		Vector3 position;

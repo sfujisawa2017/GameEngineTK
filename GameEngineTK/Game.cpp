@@ -85,21 +85,22 @@ void Game::Initialize(HWND window, int width, int height)
 		, L"Resources/ground200m.cmo",
 		*m_factory
 	);
-	m_modelBall = Model::CreateFromCMO(
-		m_d3dDevice.Get()
-		, L"Resources/ball.cmo",
-		*m_factory
-	);
-	//m_modelHead = Model::CreateFromCMO(
-	//	m_d3dDevice.Get()
-	//	, L"Resources/head.cmo",
-	//	*m_factory
-	//);
 
-	m_AngleBall = 0.0f;
+	// プレイヤーの生成
+	m_Player = std::make_unique<Player>(keyboard.get());
+	m_Player->Initialize();
+	// 追従カメラにプレイヤーをセット
+	m_Camera->SetPlayer(m_Player.get());
 
-	tank_angle = 0.0f;
-	
+	// 敵の生成
+	int enemyNum = rand() % 10 + 1;
+	m_Enemies.resize(enemyNum);
+	for (int i = 0; i < enemyNum; i++)
+	{
+		m_Enemies[i] = std::make_unique<Enemy>(keyboard.get());
+		m_Enemies[i]->Initialize();
+	}
+
 }
 
 // Executes the basic game loop.
@@ -122,76 +123,28 @@ void Game::Update(DX::StepTimer const& timer)
     elapsedTime;
 	// ゲームの毎フレーム処理
 	// デバッグカメラの更新
-	m_debugCamera->Update();
-
-	// 角度を加算
-	m_AngleBall += 1.0f;
-	
-	// 球のワールド行列を計算
-	for (int i = 0; i < 10; i++)
-	{
-		// スケーリング
-		Matrix scalemat = Matrix::CreateScale(1.0f);
-		// ロール
-		Matrix rotmatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
-		// ピッチ（仰角）
-		Matrix rotmatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
-		// ヨー（方位角）
-		Matrix rotmatY = Matrix::CreateRotationY(XMConvertToRadians(360.0f/10.0f*i+ m_AngleBall));
-		// 回転行列の合成
-		Matrix rotmat = rotmatZ * rotmatX * rotmatY;
-		// 平行移動
-		Matrix transmat = Matrix::CreateTranslation(20, 0, 0);
-		// ワールド行列の合成
-		m_worldBall[i] = rotmat * transmat;
-	}
-
-	for (int i = 0; i < 10; i++)
-	{
-		// スケーリング
-		Matrix scalemat = Matrix::CreateScale(1.0f);
-		// ロール
-		Matrix rotmatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
-		// ピッチ（仰角）
-		Matrix rotmatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
-		// ヨー（方位角）
-		Matrix rotmatY = Matrix::CreateRotationY(XMConvertToRadians(360.0f / 10.0f*i- m_AngleBall));
-		// 回転行列の合成
-		Matrix rotmat = rotmatZ * rotmatX * rotmatY;
-		// 平行移動
-		Matrix transmat = Matrix::CreateTranslation(40, 0, 0);
-		// ワールド行列の合成
-		m_worldBall[10+i] = rotmat * transmat;
-	}
-
-	
+	m_debugCamera->Update();	
 
 	// キーボードの状態を取得
 	Keyboard::State g_key = keyboard->GetState();
-	
 
-	//{// 自機のワールド行列を計算
-	//	// 回転行列
-	//	Matrix rotmat = Matrix::CreateRotationY(tank_angle);
-	//	// 平行移動行列
-	//	Matrix transmat = Matrix::CreateTranslation(tank_pos);
-	//	// ワールド行列を合成
-	//	tank_world = rotmat * transmat;
+	m_Player->Update();
 
-	//	// 自機のパーツ２を計算
-	//	// 回転行列(パーツ１からの回転分）
-	//	static float angle = 0.0f;
-	//	angle += 0.1f;
-	//	Matrix rotmat2 = Matrix::CreateRotationZ(XM_PIDIV2) * Matrix::CreateRotationY(angle);
-	//	// 平行移動行列(パーツ１からの平行移動分）
-	//	Matrix transmat2 = Matrix::CreateTranslation(Vector3(0,0.5f,0));
-	//	// ワールド行列を合成
-	//	tank2_world = rotmat2 * transmat2 * tank_world;
-	//}
+	for (std::vector<std::unique_ptr<Enemy>>::iterator it = m_Enemies.begin();
+		it != m_Enemies.end();
+		it++)
+	{
+		// デバッグしやすい書き方
+		//Enemy* enemy = it->get();
+
+		//enemy->Update();
+
+		// 短く書ける書き方
+		(*it)->Update();
+	}
 
 	{// 追従カメラ
-		m_Camera->SetTargetPos(tank_pos);
-		m_Camera->SetTargetAngle(tank_angle);
+
 
 		m_Camera->Update();
 		m_view = m_Camera->GetView();
@@ -237,32 +190,7 @@ void Game::Render()
 	m_d3dContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	m_d3dContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	m_d3dContext->RSSetState(m_states->Wireframe());
-
-	//m_view = Matrix::CreateLookAt(Vector3(0, 2.f, 2.f),
-	//	Vector3(0,0,0), Vector3(0,1,0));
-	// デバッグカメラからビュー行列を取得
-	//m_view = m_debugCamera->GetCameraMatrix();
-	//// カメラの位置（視点座標）
-	//Vector3 eyepos(0,0,5.0f);
-	//// どこのみるのか（注視点/参照点)
-	//Vector3 refpos(0, 0, 0);
-	//// 上方向ベクトル
-	//Vector3 upvec(1, -1, 0);
-	//upvec.Normalize();
-	//// ビュー行列を生成
-	//m_view = Matrix::CreateLookAt(eyepos, refpos, upvec);
-	// 垂直方向視野角
-	//float fovY = XMConvertToRadians(60.0f);
-	//// 画面横幅と縦幅の比率
-	//float aspect = (float)m_outputWidth / m_outputHeight;
-	//// 手前の表示限界距離
-	//float nearclip = 0.1f;
-	//// 奥の表示限界距離
-	//float farclip = 1000.0f;
-	//// 射影行列を生成
-	//m_proj = Matrix::CreatePerspectiveFieldOfView(
-	//fovY, aspect, nearclip, farclip);
-
+	
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
 
@@ -277,31 +205,15 @@ void Game::Render()
 		Matrix::Identity,
 		m_view,
 		m_proj);
-	// 球を描画
-	for (int i = 0; i < 20; i++)
+	
+	m_Player->Draw();
+
+	for (std::vector<std::unique_ptr<Enemy>>::iterator it = m_Enemies.begin();
+		it != m_Enemies.end();
+		it++)
 	{
-		m_modelBall->Draw(m_d3dContext.Get(),
-			*m_states,
-			m_worldBall[i],
-			m_view,
-			m_proj);
+		(*it)->Draw();
 	}
-
-	//// パーツ１を描画
-	//m_modelHead->Draw(m_d3dContext.Get(),
-	//	*m_states,
-	//	tank_world,
-	//	m_view,
-	//	m_proj);
-
-	//// パーツ２を描画
-	//m_modelHead->Draw(m_d3dContext.Get(),
-	//	*m_states,
-	//	tank2_world,
-	//	m_view,
-	//	m_proj);
-
-
 
 	m_batch->Begin();
 

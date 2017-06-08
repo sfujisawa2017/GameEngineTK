@@ -1,9 +1,7 @@
 /**
-*	@file	Player.h
+*	@file	Enemy.h
 *
 *	@brief	自機
-*
-*	@date	2015/05/08
 *
 *	@author	藤澤　伸治
 */
@@ -17,7 +15,7 @@
 
 
 // 自機
-class Player
+class Enemy
 {
 public:
 	// パーツ
@@ -34,9 +32,9 @@ public:
 	};
 
 	// コンストラクタ
-	Player(DirectX::Keyboard* keyboard);
+	Enemy(DirectX::Keyboard* keyboard);
 	// デストラクタ
-	~Player();
+	~Enemy();
 	// 初期化
 	void Initialize();
 	// 毎フレーム更新
@@ -65,5 +63,9 @@ protected:
 
 	// 自機のギミックに使う角度
 	float m_sinAngle;
+	// タイマー
+	int m_Timer;
+	// 目標角度
+	float m_DistAngle;
 };
 
