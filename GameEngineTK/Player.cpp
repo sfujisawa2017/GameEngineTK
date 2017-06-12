@@ -154,8 +154,18 @@ void Player::Update()
 		m_Obj[0].SetTranslation(pos);
 	}
 
+	// 弾丸が進む処理
+	{		
+		// 自機の座標を移動
+		Vector3 pos = m_Obj[PARTS_SCORE].GetTranslation();
+		pos += m_BulletVel;
+		m_Obj[PARTS_SCORE].SetTranslation(pos);
+	}
+
 	// 行列更新
 	Calc();
+
+	FireBullet();
 }
 
 //-----------------------------------------------------------------------------
@@ -182,6 +192,30 @@ void Player::Draw()
 	{
 		it->Draw();
 	}
+}
+
+void Player::FireBullet()
+{
+	// ワールド行列を取得
+	Matrix worldm = m_Obj[PARTS_SCORE].GetWorld();
+
+	Vector3 scale;	// ワールドスケーリング
+	Quaternion rotation;	// ワールド回転
+	Vector3 translation;	// ワールド座標
+
+	// ワールド行列から各要素を取り出す
+	worldm.Decompose(scale, rotation, translation);
+
+	// 親子関係を解除してパーツを独立させる
+	m_Obj[PARTS_SCORE].SetObjParent(nullptr);
+	m_Obj[PARTS_SCORE].SetScale(scale);
+	m_Obj[PARTS_SCORE].SetRotationQ(rotation);
+	m_Obj[PARTS_SCORE].SetTranslation(translation);
+
+	// 弾の速度を設定
+	m_BulletVel = Vector3(0, 0, -0.1f);
+	// 弾の向きに合わせて進行方向を回転
+	m_BulletVel = Vector3::Transform(m_BulletVel, rotation);
 }
 
 const DirectX::SimpleMath::Vector3& Player::GetTrans()

@@ -51,7 +51,9 @@ public:
 	// スケーリング用
 	void SetScale(const DirectX::SimpleMath::Vector3& scale) { m_scale = scale; }
 	// 回転角用
-	void SetRotation(const DirectX::SimpleMath::Vector3& rotation) { m_rotation = rotation; }
+	void SetRotation(const DirectX::SimpleMath::Vector3& rotation) { m_rotation = rotation; m_UseQuternion = false; }
+	// 回転角用
+	void SetRotationQ(const DirectX::SimpleMath::Quaternion& rotation) { m_rotationQ = rotation; m_UseQuternion = true; }
 	// 平行移動用
 	void SetTranslation(const DirectX::SimpleMath::Vector3& translation) { m_translation = translation; }
 	// 親行列用
@@ -73,13 +75,17 @@ private:
 	std::unique_ptr<DirectX::Model> m_model;
 	// スケーリング
 	DirectX::SimpleMath::Vector3 m_scale;
-	// 回転角
+	// 回転角（オイラー角）
 	DirectX::SimpleMath::Vector3 m_rotation;
+	// 回転角（クォータニオン）
+	DirectX::SimpleMath::Quaternion m_rotationQ;
 	// 平行移動
 	DirectX::SimpleMath::Vector3 m_translation;
 	// ワールド行列
 	DirectX::SimpleMath::Matrix m_world;
 	// 親となる３Ｄオブジェクトのクラスのポインタ
 	Obj3d* m_pObjParent;
+	// 回転をクォータニオンで持っているフラグ
+	bool m_UseQuternion;
 };
 

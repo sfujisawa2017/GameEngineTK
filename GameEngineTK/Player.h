@@ -45,6 +45,9 @@ public:
 	void Calc();
 	// 描画
 	void Draw();
+	// 弾発射
+	void FireBullet();
+
 	// 座標を取得
 	const DirectX::SimpleMath::Vector3& GetTrans();
 	const DirectX::SimpleMath::Vector3 & GetRot();
@@ -65,5 +68,7 @@ protected:
 
 	// 自機のギミックに使う角度
 	float m_sinAngle;
+	// 弾の速度
+	DirectX::SimpleMath::Vector3 m_BulletVel;
 };
 
