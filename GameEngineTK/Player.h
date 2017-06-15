@@ -47,6 +47,8 @@ public:
 	void Draw();
 	// 弾発射
 	void FireBullet();
+	// 弾リセット
+	void ResetBullet();
 
 	// 座標を取得
 	const DirectX::SimpleMath::Vector3& GetTrans();
@@ -70,5 +72,7 @@ protected:
 	float m_sinAngle;
 	// 弾の速度
 	DirectX::SimpleMath::Vector3 m_BulletVel;
+	// 弾丸発射中フラグ
+	bool m_FireFlag;
 };
 

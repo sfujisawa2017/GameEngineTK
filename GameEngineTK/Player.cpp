@@ -75,6 +75,9 @@ void Player::Initialize()
 
 	m_Obj[PARTS_FAN].SetTranslation(
 		Vector3(0, 0.3f, 1.0f));
+
+	// 発射中ではない
+	m_FireFlag = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -154,7 +157,20 @@ void Player::Update()
 		m_Obj[0].SetTranslation(pos);
 	}
 
+	if (m_KeyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+	{
+		if (m_FireFlag)
+		{
+			ResetBullet();
+		}
+		else
+		{
+			FireBullet();
+		}
+	}
+
 	// 弾丸が進む処理
+	if (m_FireFlag)
 	{		
 		// 自機の座標を移動
 		Vector3 pos = m_Obj[PARTS_SCORE].GetTranslation();
@@ -165,7 +181,7 @@ void Player::Update()
 	// 行列更新
 	Calc();
 
-	FireBullet();
+	//FireBullet();
 }
 
 //-----------------------------------------------------------------------------
@@ -196,6 +212,8 @@ void Player::Draw()
 
 void Player::FireBullet()
 {
+	if (m_FireFlag) return;
+
 	// ワールド行列を取得
 	Matrix worldm = m_Obj[PARTS_SCORE].GetWorld();
 
@@ -216,6 +234,23 @@ void Player::FireBullet()
 	m_BulletVel = Vector3(0, 0, -0.1f);
 	// 弾の向きに合わせて進行方向を回転
 	m_BulletVel = Vector3::Transform(m_BulletVel, rotation);
+
+	m_FireFlag = true;
+}
+
+void Player::ResetBullet()
+{
+	m_Obj[PARTS_SCORE].SetObjParent(
+		&m_Obj[PARTS_BASE]);
+
+	m_Obj[PARTS_SCORE].SetTranslation(
+		Vector3(0, 1.0f, 0));
+	m_Obj[PARTS_SCORE].SetScale(
+		Vector3(2, 2, 2));
+	m_Obj[PARTS_SCORE].SetRotation(Vector3(0, 0, 0));
+
+	m_FireFlag = false;
+
 }
 
 const DirectX::SimpleMath::Vector3& Player::GetTrans()
