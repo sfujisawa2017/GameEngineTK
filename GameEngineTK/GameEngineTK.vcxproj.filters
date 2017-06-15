@@ -16,6 +16,7 @@
     <ClInclude Include="Obj3d.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Collision.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="Obj3d.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Collision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
