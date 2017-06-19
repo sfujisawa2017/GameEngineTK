@@ -78,6 +78,17 @@ void Player::Initialize()
 
 	// 発射中ではない
 	m_FireFlag = false;
+
+	// 武器の当たり判定ノード設定
+	{
+		m_CollisionNodeBullet.Initialize();
+		// 武器パーツにぶら下げる
+		m_CollisionNodeBullet.SetParent(&m_Obj[PARTS_SCORE]);
+		// 武器パーツからのオフセット
+		m_CollisionNodeBullet.SetTrans(Vector3(0, 0, 0));
+		// 当たり判定の半径
+		m_CollisionNodeBullet.SetLocalRadius(0.2f);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -195,6 +206,9 @@ void Player::Calc()
 	{
 		it->Update();
 	}
+
+	// 当たり判定ノード更新
+	m_CollisionNodeBullet.Update();
 }
 
 //-----------------------------------------------------------------------------
@@ -208,6 +222,8 @@ void Player::Draw()
 	{
 		it->Draw();
 	}
+
+	m_CollisionNodeBullet.Draw();
 }
 
 void Player::FireBullet()
