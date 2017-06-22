@@ -59,7 +59,7 @@ void Player::Initialize()
 		Vector3(0, 0.7f, 0));
 
 	m_Obj[PARTS_SCORE].SetTranslation(
-		Vector3(0, 1.0f, 0));
+		Vector3(0, 0.0f, 0));
 	m_Obj[PARTS_SCORE].SetScale(
 		Vector3(2, 2, 2));
 
@@ -100,23 +100,23 @@ void Player::Update()
 	m_KeyboardTracker.Update(keystate);
 
 	// 自機パーツのギミック
-	{
-		// 自機の角度を変動
-		Vector3 angle;
+	//{
+	//	// 自機の角度を変動
+	//	Vector3 angle;
 
-		angle = m_Obj[PARTS_SCORE].GetRotation();
-		m_Obj[PARTS_SCORE].SetRotation(
-			angle + Vector3(0.2f, 0.1f, 0));
+	//	angle = m_Obj[PARTS_SCORE].GetRotation();
+	//	m_Obj[PARTS_SCORE].SetRotation(
+	//		angle + Vector3(0.2f, 0.1f, 0));
 
-		// サインの引数の角度がだんだん増える
-		m_sinAngle += 0.1f;
-		// ファンの角度がいったりきたりする(-1～+1)
-		float fan_angle = sinf(m_sinAngle) * 3.0f;
-		/*m_Obj[PLAYER_PARTS_FAN].SetRotation(
-		Vector3(0, 0, fan_angle));*/
-		//m_Obj[PARTS_FAN].SetTranslation(
-		//	Vector3(sinf(m_sinAngle), 0, cosf(m_sinAngle)*3.0f));
-	}
+	//	// サインの引数の角度がだんだん増える
+	//	m_sinAngle += 0.1f;
+	//	// ファンの角度がいったりきたりする(-1～+1)
+	//	float fan_angle = sinf(m_sinAngle) * 3.0f;
+	//	/*m_Obj[PLAYER_PARTS_FAN].SetRotation(
+	//	Vector3(0, 0, fan_angle));*/
+	//	//m_Obj[PARTS_FAN].SetTranslation(
+	//	//	Vector3(sinf(m_sinAngle), 0, cosf(m_sinAngle)*3.0f));
+	//}
 
 
 	// Aキーを押している間
@@ -260,7 +260,7 @@ void Player::ResetBullet()
 		&m_Obj[PARTS_BASE]);
 
 	m_Obj[PARTS_SCORE].SetTranslation(
-		Vector3(0, 1.0f, 0));
+		Vector3(0, 0.0f, 0));
 	m_Obj[PARTS_SCORE].SetScale(
 		Vector3(2, 2, 2));
 	m_Obj[PARTS_SCORE].SetRotation(Vector3(0, 0, 0));

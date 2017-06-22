@@ -12,6 +12,7 @@
 #include <Keyboard.h>
 #include <vector>
 #include "Obj3d.h"
+#include "CollisionNode.h"
 
 
 // 自機
@@ -52,7 +53,8 @@ public:
 	void SetRot(const DirectX::SimpleMath::Vector3& rot);
 	// ワールド行列を取得
 	const DirectX::SimpleMath::Matrix& GetLocalWorld();
-
+	// 当たり判定球を取得
+	const SphereNode& GetCollisionNodeBody() { return m_CollisionNodeBody; }
 protected:
 	// メンバ変数
 	// ロボットの構成パーツ
@@ -67,5 +69,8 @@ protected:
 	int m_Timer;
 	// 目標角度
 	float m_DistAngle;
+
+	// 当たり判定球
+	SphereNode m_CollisionNodeBody;
 };
 

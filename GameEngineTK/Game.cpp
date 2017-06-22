@@ -143,6 +143,35 @@ void Game::Update(DX::StepTimer const& timer)
 		(*it)->Update();
 	}
 
+	{// 弾丸と敵のあたり判定
+		// 弾丸の判定球取得
+		const Sphere& bulletSphere = m_Player->GetCollisionNodeBullet();
+
+		// 敵の数だけ処理する
+		for (std::vector<std::unique_ptr<Enemy>>::iterator it = m_Enemies.begin();
+			it != m_Enemies.end();
+			)
+		{
+			Enemy* enemy = it->get();
+
+			// 敵の判定球取得
+			const Sphere& enemySphere = enemy->GetCollisionNodeBody();
+
+			// 二つの球が当たっていたら
+			if (CheckSphere2Sphere(bulletSphere, enemySphere))
+			{
+				// 敵を殺す
+				// eraseした要素の次を指すイテレータを取得
+				it = m_Enemies.erase(it);
+			}
+			else
+			{
+				// イテレータを一つ進める
+				it++;
+			}
+		}
+	}
+
 	{// 追従カメラ
 
 
