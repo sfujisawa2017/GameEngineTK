@@ -2,6 +2,8 @@
 
 using namespace DirectX::SimpleMath;
 
+bool CollisionNode::m_DebugVisible = true;
+
 /// <summary>
 /// CollisionNode‚Ìƒƒ“ƒoŠÖ”
 /// </summary>

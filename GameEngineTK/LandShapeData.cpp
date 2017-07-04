@@ -226,12 +226,15 @@ void LandShapeData::UpdateNodeMatrices(int index, const NodeInfo* nodeInfo_array
 
 	// モデル行列を作成
 	Matrix modelm;
+	// スケール行列
+	Matrix scalem = Matrix::CreateScale(nodeInfo->scale);
 	// 回転行列
 	Matrix rotm = Matrix::CreateFromQuaternion(nodeInfo->rotation);
 	// 平行移動行列
 	Matrix transm = Matrix::CreateTranslation(nodeInfo->translation);
 
 	// 行列を合成
+	modelm *= scalem;
 	modelm *= rotm;
 	modelm *= transm;
 

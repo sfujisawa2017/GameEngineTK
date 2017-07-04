@@ -18,6 +18,7 @@
 #include <vector>
 #include "Player.h"
 #include "Enemy.h"
+#include "LandShape.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -92,7 +93,9 @@ private:
 	std::unique_ptr<DirectX::EffectFactory> m_factory;
 	// モデル
 	Obj3d m_objSkydome;
-	std::unique_ptr<DirectX::Model> m_modelGround;
+	//std::unique_ptr<DirectX::Model> m_modelGround;
+	// 地形
+	LandShape m_LandShape;
 
 	// キーボード
 	std::unique_ptr<DirectX::Keyboard> keyboard;

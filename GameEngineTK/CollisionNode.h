@@ -12,6 +12,13 @@
 class CollisionNode
 {
 public:
+	static bool GetDebugVisible() { return m_DebugVisible; }
+	static void SetDebugVisible(bool visible) { m_DebugVisible = visible; }
+protected:
+	// デバッグ表示ON
+	static bool m_DebugVisible;
+
+public:
 	// 初期化
 	virtual void Initialize() = 0;
 	// 毎フレーム更新

@@ -12,6 +12,7 @@
 #include <PrimitiveBatch.h>
 #include <VertexTypes.h>
 #include <CommonStates.h>
+#include <map>
 //
 #include "Camera.h"
 #include "Obj3D.h"
@@ -77,7 +78,7 @@ public:
 	// コンストラクタ
 	LandShape();
 	// 初期化
-	void Initialize(const wstring& filename_bin, const wstring& filename_cmo);
+	void Initialize(const std::wstring& filename_bin, const std::wstring& filename_cmo);
 	// ワールド行列の計算
 	void Update();
 	// デバッグ描画
@@ -89,15 +90,15 @@ public:
 	bool IntersectSegment(const Segment& segment, DirectX::SimpleMath::Vector3* inter);
 
 	// アクセッサ
-	void SetTrans(const DirectX::SimpleMath::Vector3& trans) { m_Obj.SetTrans(trans); }
-	void SetRot(const DirectX::SimpleMath::Vector3& rot) { m_Obj.SetRot(rot); }
+	void SetTrans(const DirectX::SimpleMath::Vector3& trans) { m_Obj.SetTranslation(trans); }
+	void SetRot(const DirectX::SimpleMath::Vector3& rot) { m_Obj.SetRotation(rot); }
 	void SetScale(float scale) { m_Obj.SetScale(DirectX::SimpleMath::Vector3(scale)); }
-	void SetLocalWorld(const DirectX::SimpleMath::Matrix& mat) { m_Obj.SetLocalWorld(mat); }
+	void SetLocalWorld(const DirectX::SimpleMath::Matrix& mat) { m_Obj.SetWorld(mat); }
 
-	const DirectX::SimpleMath::Vector3& GetTrans() { return m_Obj.GetTrans(); }
-	const DirectX::SimpleMath::Vector3& GetRot() { return m_Obj.GetRot(); }
+	const DirectX::SimpleMath::Vector3& GetTrans() { return m_Obj.GetTranslation(); }
+	const DirectX::SimpleMath::Vector3& GetRot() { return m_Obj.GetRotation(); }
 	float GetScale() { return m_Obj.GetScale().x; }
-	const DirectX::SimpleMath::Matrix& GetLocalWorld() { return m_Obj.GetLocalWorld(); }
+	const DirectX::SimpleMath::Matrix& GetLocalWorld() { return m_Obj.GetWorld(); }
 
 protected:
 	// 共通データ
@@ -106,7 +107,7 @@ protected:
 	static std::map<std::wstring, std::unique_ptr<LandShapeData>> s_dataarray;
 
 	// 表示オブジェクト
-	Obj3D m_Obj;
+	Obj3d m_Obj;
 	// 地形当たりデータ
 	const LandShapeData* m_pData;
 	// ワールド→モデル行列

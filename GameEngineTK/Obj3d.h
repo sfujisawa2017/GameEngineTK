@@ -56,6 +56,8 @@ public:
 	void SetRotationQ(const DirectX::SimpleMath::Quaternion& rotation) { m_rotationQ = rotation; m_UseQuternion = true; }
 	// 平行移動用
 	void SetTranslation(const DirectX::SimpleMath::Vector3& translation) { m_translation = translation; }
+	// ワールド行列用
+	void SetWorld(const DirectX::SimpleMath::Matrix& world) { m_world = world; }
 	// 親行列用
 	void SetObjParent(Obj3d* pObjParent) { m_pObjParent = pObjParent; }
 	// getter

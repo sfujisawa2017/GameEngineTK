@@ -53,6 +53,14 @@ void Game::Initialize(HWND window, int width, int height)
 		m_d3dDevice,
 		m_d3dContext);
 
+	// 地形の初期化に必要な設定
+	LandShapeCommonDef lscDef;
+	lscDef.pDevice = m_d3dDevice.Get();
+	lscDef.pDeviceContext = m_d3dContext.Get();
+	lscDef.pCamera = m_Camera.get();
+	// 地形の共通初期化
+	LandShape::InitializeCommon(lscDef);
+
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionNormal>>(m_d3dContext.Get());
 
 	m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
@@ -80,11 +88,13 @@ void Game::Initialize(HWND window, int width, int height)
 	// モデルの読み込み
 	m_objSkydome.LoadModel(L"Resources/skydome.cmo");
 	
-	m_modelGround = Model::CreateFromCMO(
-		m_d3dDevice.Get()
-		, L"Resources/ground200m.cmo",
-		*m_factory
-	);
+	// 地形の読み込み
+	m_LandShape.Initialize(L"ball", L"ground200m");
+	//m_modelGround = Model::CreateFromCMO(
+	//	m_d3dDevice.Get()
+	//	, L"Resources/ground200m.cmo",
+	//	*m_factory
+	//);
 
 	// プレイヤーの生成
 	m_Player = std::make_unique<Player>(keyboard.get());
@@ -181,7 +191,7 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	m_objSkydome.Update();
-
+	m_LandShape.Update();
 	
 
 }
@@ -228,12 +238,13 @@ void Game::Render()
 
 	// 天球を描画
 	m_objSkydome.Draw();
+	m_LandShape.Draw();
 	// 地面を描画
-	m_modelGround->Draw(m_d3dContext.Get(),
-		*m_states,
-		Matrix::Identity,
-		m_view,
-		m_proj);
+	//m_modelGround->Draw(m_d3dContext.Get(),
+	//	*m_states,
+	//	Matrix::Identity,
+	//	m_view,
+	//	m_proj);
 	
 	m_Player->Draw();
 
