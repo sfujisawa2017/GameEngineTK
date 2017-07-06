@@ -214,82 +214,81 @@ void LandShape::DisableLighting()
 //--------------------------------------------------------------------------------------
 bool LandShape::IntersectSphere(const Sphere& sphere, Vector3* reject)
 {
-	return false;	/// TODO 仮
-	//if (m_pData == nullptr) return false;
+	if (m_pData == nullptr) return false;
 
-	//// ヒットフラグを初期化
-	//bool hit = false;
-	//// 大きい数字で初期化
-	//float over_length = 1.0e5;
-	//Vector3 l_inter;
-	//Vector3 l_normal;
-	//Vector3 l_down;
-	//// スケールを取得
-	//float scale = GetScale();
+	// ヒットフラグを初期化
+	bool hit = false;
+	// 大きい数字で初期化
+	float over_length = 1.0e5;
+	Vector3 l_inter;
+	Vector3 l_normal;
+	Vector3 l_down;
+	// スケールを取得
+	float scale = GetScale();
 
-	//// 球をコピー
-	//Sphere localsphere = sphere;
+	// 球をコピー
+	Sphere localsphere = sphere;
 
-	//// スケール0の場合、判定しない
-	//if (scale <= 1.0e-10) return false;
+	// スケール0の場合、判定しない
+	if (scale <= 1.0e-10) return false;
 
-	//// 球の中心点をワールド座標からモデル座標系に引き込む
-	//localsphere.Center = Vector3::Transform(sphere.Center, m_WorldLocal);
-	//// 半径をワールドをワールド座標系からモデル座標系に変換
-	//localsphere.Radius = sphere.Radius / scale;
+	// 球の中心点をワールド座標からモデル座標系に引き込む
+	localsphere.Center = Vector3::Transform(sphere.Center, m_WorldLocal);
+	// 半径をワールドをワールド座標系からモデル座標系に変換
+	localsphere.Radius = sphere.Radius / scale;
 
-	//// 三角形の数
-	//int nTri = m_pData->m_Triangles.size();
-	//// 全ての三角形について
-	//for (int i = 0; i < nTri; i++)
-	//{
-	//	float temp_over_length;
-	//	Vector3 temp_inter;
+	// 三角形の数
+	int nTri = m_pData->m_Triangles.size();
+	// 全ての三角形について
+	for (int i = 0; i < nTri; i++)
+	{
+		float temp_over_length;
+		Vector3 temp_inter;
 
-	//	const Triangle& tri = m_pData->m_Triangles[i];
+		const Triangle& tri = m_pData->m_Triangles[i];
 
-	//	// 三角形と球の当たり判定
-	//	if (CheckSphere2Triangle(localsphere, tri, &temp_inter))
-	//	{// ヒットした
-	//		hit = true;
-	//		// 衝突点から球の中心へのベクトル
-	//		Vector3 sub = localsphere.Center - temp_inter;
-	//		// 球の中心が三角形にめりこんでいる距離を計算
-	//		temp_over_length = sub.Dot(-tri.Normal);
+		// 三角形と球の当たり判定
+		if (CheckSphere2Triangle(localsphere, tri, &temp_inter))
+		{// ヒットした
+			hit = true;
+			// 衝突点から球の中心へのベクトル
+			Vector3 sub = localsphere.Center - temp_inter;
+			// 球の中心が三角形にめりこんでいる距離を計算
+			temp_over_length = sub.Dot(-tri.Normal);
 
-	//		// めりこみ具合がここまでで最小なら
-	//		if (temp_over_length < over_length)
-	//		{
-	//			// ヒット座標、法線、めりこみ距離を記録
-	//			l_inter = temp_inter;
-	//			l_normal = tri.Normal;
-	//			over_length = temp_over_length;
-	//		}
-	//	}
-	//}
+			// めりこみ具合がここまでで最小なら
+			if (temp_over_length < over_length)
+			{
+				// ヒット座標、法線、めりこみ距離を記録
+				l_inter = temp_inter;
+				l_normal = tri.Normal;
+				over_length = temp_over_length;
+			}
+		}
+	}
 
-	//if (hit)
-	//{
-	//	// 距離をモデル座標系からワールド座標系での長さに変換
-	//	over_length *= scale;
+	if (hit)
+	{
+		// 距離をモデル座標系からワールド座標系での長さに変換
+		over_length *= scale;
 
-	//	// ワールド行列を取得
-	//	const Matrix& localworld = m_Obj.GetWorld();
+		// ワールド行列を取得
+		const Matrix& localworld = m_Obj.GetWorld();
 
-	//	// 排斥ベクトルの計算
-	//	if (reject != nullptr)
-	//	{
-	//		// 地形の法線方向をモデル座標系からワールド座標系に変換
-	//		*reject = Vector3::TransformNormal(l_normal, localworld);
-	//		reject->Normalize();
-	//		// めり込み分だけ押し出すベクトルを計算
-	//		const float extra = 0.05f;
-	//		float reject_distance = sphere.Radius + over_length + extra;
-	//		*reject = (*reject) * reject_distance;
-	//	}
-	//}
+		// 排斥ベクトルの計算
+		if (reject != nullptr)
+		{
+			// 地形の法線方向をモデル座標系からワールド座標系に変換
+			*reject = Vector3::TransformNormal(l_normal, localworld);
+			reject->Normalize();
+			// めり込み分だけ押し出すベクトルを計算
+			const float extra = 0.05f;
+			float reject_distance = sphere.Radius + over_length + extra;
+			*reject = (*reject) * reject_distance;
+		}
+	}
 
-	//return hit;
+	return hit;
 }
 
 //--------------------------------------------------------------------------------------
