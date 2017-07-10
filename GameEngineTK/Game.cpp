@@ -89,7 +89,7 @@ void Game::Initialize(HWND window, int width, int height)
 	m_objSkydome.LoadModel(L"Resources/skydome.cmo");
 	
 	// 地形の読み込み
-	m_LandShape.Initialize(L"ball", L"ground200m");
+	m_LandShape.Initialize(L"ground200m", L"ground200m");
 	//m_modelGround = Model::CreateFromCMO(
 	//	m_d3dDevice.Get()
 	//	, L"Resources/ground200m.cmo",
@@ -192,7 +192,52 @@ void Game::Update(DX::StepTimer const& timer)
 
 	m_objSkydome.Update();
 	m_LandShape.Update();
+
+	{// 自機の地形へのめり込みを検出して、押し出す
+		// 自機の全身球を取得
+		Sphere sphere = m_Player->GetCollisionNodeBody();
+		// 自機のワールド座標を取得
+		Vector3 trans = m_Player->GetTrans();
+		// 当たり球の中心から自機の足元へのベクトル
+		Vector3 sphere2player = trans - sphere.Center;
+
+		// 排斥ベクトル
+		Vector3 reject;
+
+		// 地形と球の当たり判定
+		if (m_LandShape.IntersectSphere(sphere, &reject))
+		{
+			// めり込み分だけ、球を押し出す
+			sphere.Center += reject;
+		}
+
+		// めり込みを排除した座標をセット
+		m_Player->SetTrans(sphere.Center += sphere2player);
+
+		// 自機のワールド行列更新
+		m_Player->Calc();
+	}
 	
+	{// 地面に乗る処理
+		// プレイヤーの上から下へのベクトル
+		Segment player_segment;
+		// 自機のワールド座標を取得
+		Vector3 trans = m_Player->GetTrans();
+		player_segment.Start = trans + Vector3(0, 1, 0);
+		// 50センチ下まで判定をとって吸着する
+		player_segment.End = trans + Vector3(0, -0.5f, 0);
+
+		Vector3 inter;
+		// 地形と線分の当たり判定
+		if (m_LandShape.IntersectSegment(player_segment, &inter))
+		{
+			// Y座標のみ交点の位置に移動
+			trans.y = inter.y;
+			m_Player->SetTrans(trans);
+			// 自機のワールド行列更新
+			m_Player->Calc();
+		}
+	}
 
 }
 

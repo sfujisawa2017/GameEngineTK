@@ -20,6 +20,12 @@
 class Player
 {
 public:
+	// 重力加速度
+	const float GRAVITY_ACC = 0.03f;
+	// ジャンプ初速
+	const float JUMP_SPEED_FIRST = 0.5f;
+	// ジャンプ最高速
+	const float JUMP_SPEED_MAX = 0.3f;
 	// パーツ
 	enum PARTS
 	{
@@ -61,6 +67,9 @@ public:
 	const DirectX::SimpleMath::Matrix& GetLocalWorld();
 	// 当たり判定球を取得
 	const SphereNode& GetCollisionNodeBullet() { return m_CollisionNodeBullet; }
+	// 当たり判定球を取得
+	const SphereNode& GetCollisionNodeBody() { return m_CollisionNodeBody; }
+
 protected:
 	// メンバ変数
 	// ロボットの構成パーツ
@@ -78,5 +87,12 @@ protected:
 
 	// 当たり判定球
 	SphereNode m_CollisionNodeBullet;
+	// 当たり判定球
+	SphereNode m_CollisionNodeBody;
+
+	// 速度ベクトル
+	DirectX::SimpleMath::Vector3 m_Velocity;
+	// ジャンプ中フラグ
+	bool m_isJump;
 };
 

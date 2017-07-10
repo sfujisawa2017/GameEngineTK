@@ -89,6 +89,18 @@ void Player::Initialize()
 		// 当たり判定の半径
 		m_CollisionNodeBullet.SetLocalRadius(0.2f);
 	}
+	// 全身の当たり判定ノード設定
+	{
+		m_CollisionNodeBody.Initialize();
+		// ベースパーツにぶら下げる
+		m_CollisionNodeBody.SetParent(&m_Obj[0]);
+		// ベースパーツからのオフセット
+		m_CollisionNodeBody.SetTrans(Vector3(0, 0.5f, 0));
+		// 当たり判定の半径
+		m_CollisionNodeBody.SetLocalRadius(0.5f);
+	}
+
+	m_isJump = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -98,6 +110,24 @@ void Player::Update()
 {
 	Keyboard::State keystate = m_pKeyboard->GetState();
 	m_KeyboardTracker.Update(keystate);
+
+	// スペースを押したらジャンプ
+	if (m_KeyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+	{
+		// ジャンプ開始
+		StartJump();
+	}
+
+	// ジャンプ中なら
+	if (m_isJump)
+	{
+		// 下方向に加速
+		m_Velocity.y -= GRAVITY_ACC;
+		if (m_Velocity.y <= -JUMP_SPEED_MAX)
+		{
+			m_Velocity.y = -JUMP_SPEED_MAX;
+		}
+	}
 
 	// 自機パーツのギミック
 	//{
@@ -209,6 +239,8 @@ void Player::Calc()
 
 	// 当たり判定ノード更新
 	m_CollisionNodeBullet.Update();
+	// 当たり判定ノード更新
+	m_CollisionNodeBody.Update();
 }
 
 //-----------------------------------------------------------------------------
@@ -224,6 +256,7 @@ void Player::Draw()
 	}
 
 	m_CollisionNodeBullet.Draw();
+	m_CollisionNodeBody.Draw();
 }
 
 void Player::FireBullet()

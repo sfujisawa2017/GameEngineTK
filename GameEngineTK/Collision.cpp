@@ -238,3 +238,77 @@ bool CheckSphere2Triangle(const Sphere& _sphere, const Triangle& _triangle, Vect
 
 	return true;
 }
+
+//--------------------------------------------------------------------------------------------
+// 説　明 : 線分（有向）と法線付き三角形の当たりチェック
+// 引　数 : _segment		光線の線分（Start→Endが正方向）
+//			_tri		法線付き三角形
+//			_inter		交点（省略可）
+// 戻り値 : 交差しているか否か
+// メ　モ : 裏面の当たりはとらない
+//--------------------------------------------------------------------------------------------
+bool CheckSegment2Triangle(const Segment& _segment, const Triangle& _triangle, Vector3 *_inter)
+{
+	const float epsilon = -1.0e-5f;	// 誤差吸収用の微小な値
+	Vector3 	LayV;		// 線分の終点→始点
+	Vector3 	tls;		// 三角形の頂点0→線分の始点
+	Vector3 	tle;		// 三角形の頂点0→線分の終点
+	float 	distl0;
+	float 	distl1;
+	float 	dp;
+	float 	denom;
+	float 	t;
+	Vector3	s;			// 直線と平面との交点
+	Vector3 	st0;		// 交点→三角形の頂点0
+	Vector3 	st1;		// 交点→三角形の頂点1
+	Vector3 	st2;		// 交点→三角形の頂点2
+	Vector3 	t01;		// 三角形の頂点0→頂点1
+	Vector3 	t12;		// 三角形の頂点1→頂点2
+	Vector3 	t20;		// 三角形の頂点2→頂点0
+	Vector3	m;
+
+	// 線分の始点が三角系の裏側にあれば、当たらない
+	tls = _segment.Start - _triangle.P0;
+	distl0 = tls.Dot(_triangle.Normal);	// 線分の始点と平面の距離
+	if (distl0 <= epsilon) return false;
+
+	// 線分の終点が三角系の表側にあれば、当たらない
+	tle = _segment.End - _triangle.P0;
+	distl1 = tle.Dot(_triangle.Normal);	// 線分の終点と平面の距離
+	if (distl1 >= -epsilon) return false;
+
+	// 直線と平面との交点sを取る
+	denom = distl0 - distl1;
+	t = distl0 / denom;
+	LayV = _segment.End - _segment.Start;	// 線分の方向ベクトルを取得
+	s = t * LayV + _segment.Start;
+
+	// 交点が三角形の内側にあるかどうかを調べる。
+	// 三角形の内側にある場合、交点から各頂点へのベクトルと各辺ベクトルの外積（三組）が、全て法線と同じ方向を向く
+	// 一つでも方向が一致しなければ、当たらない。
+	st0 = _triangle.P0 - s;
+	t01 = _triangle.P1 - _triangle.P0;
+	m = st0.Cross(t01);
+	dp = m.Dot(_triangle.Normal);
+
+	if (dp <= epsilon) return false;
+
+	st1 = _triangle.P1 - s;
+	t12 = _triangle.P2 - _triangle.P1;
+	m = st1.Cross(t12);
+	dp = m.Dot(_triangle.Normal);
+	if (dp <= epsilon) return false;
+
+	st2 = _triangle.P2 - s;
+	t20 = _triangle.P0 - _triangle.P2;
+	m = st2.Cross(t20);
+	dp = m.Dot(_triangle.Normal);
+	if (dp <= epsilon) return false;
+
+	if (_inter)
+	{
+		*_inter = s;	// 交点をコピー
+	}
+
+	return true;
+}
