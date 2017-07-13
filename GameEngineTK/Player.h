@@ -65,11 +65,15 @@ public:
 	void SetRot(const DirectX::SimpleMath::Vector3& rot);
 	// ワールド行列を取得
 	const DirectX::SimpleMath::Matrix& GetLocalWorld();
+	void StartJump();
+	void StartFall();
+	void StopJump();
 	// 当たり判定球を取得
 	const SphereNode& GetCollisionNodeBullet() { return m_CollisionNodeBullet; }
 	// 当たり判定球を取得
 	const SphereNode& GetCollisionNodeBody() { return m_CollisionNodeBody; }
 
+	const DirectX::SimpleMath::Vector3& GetVelocity() { return m_Velocity; }
 protected:
 	// メンバ変数
 	// ロボットの構成パーツ

@@ -90,6 +90,8 @@ void Game::Initialize(HWND window, int width, int height)
 	
 	// 地形の読み込み
 	m_LandShape.Initialize(L"ground200m", L"ground200m");
+	//m_LandShape.SetRot(Vector3(0.5f, 0, 0));
+	//m_LandShape.SetScale(0.2f);
 	//m_modelGround = Model::CreateFromCMO(
 	//	m_d3dDevice.Get()
 	//	, L"Resources/ground200m.cmo",
@@ -219,23 +221,35 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 	
 	{// 地面に乗る処理
-		// プレイヤーの上から下へのベクトル
-		Segment player_segment;
-		// 自機のワールド座標を取得
-		Vector3 trans = m_Player->GetTrans();
-		player_segment.Start = trans + Vector3(0, 1, 0);
-		// 50センチ下まで判定をとって吸着する
-		player_segment.End = trans + Vector3(0, -0.5f, 0);
-
-		Vector3 inter;
-		// 地形と線分の当たり判定
-		if (m_LandShape.IntersectSegment(player_segment, &inter))
+		// 落下中か着地中のみ
+		if (m_Player->GetVelocity().y <= 0.0f)
 		{
-			// Y座標のみ交点の位置に移動
-			trans.y = inter.y;
-			m_Player->SetTrans(trans);
-			// 自機のワールド行列更新
-			m_Player->Calc();
+			// プレイヤーの上から下へのベクトル
+			Segment player_segment;
+			// 自機のワールド座標を取得
+			Vector3 trans = m_Player->GetTrans();
+			player_segment.Start = trans + Vector3(0, 1, 0);
+			// 50センチ下まで判定をとって吸着する
+			player_segment.End = trans + Vector3(0, -0.5f, 0);
+
+			Vector3 inter;
+			// 地形と線分の当たり判定
+			if (m_LandShape.IntersectSegment(player_segment, &inter))
+			{
+				// Y座標のみ交点の位置に移動
+				trans.y = inter.y;
+				m_Player->SetTrans(trans);
+				// 自機のワールド行列更新
+				m_Player->Calc();
+
+				// ジャンプ終了
+				m_Player->StopJump();
+			}
+			else
+			{
+				// 落下開始
+				m_Player->StartFall();
+			}
 		}
 	}
 

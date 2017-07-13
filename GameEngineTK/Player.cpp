@@ -129,6 +129,10 @@ void Player::Update()
 		}
 	}
 
+	Vector3 trans = this->GetTrans();
+	trans += m_Velocity;
+	this->SetTrans(trans);
+
 	// 自機パーツのギミック
 	//{
 	//	// 自機の角度を変動
@@ -330,4 +334,39 @@ const DirectX::SimpleMath::Matrix& Player::GetLocalWorld()
 {
 	// タンクパーツのワールド行列を返す
 	return m_Obj[0].GetWorld();
+}
+
+/// <summary>
+/// ジャンプ開始
+/// </summary>
+void Player::StartJump()
+{
+	if (!m_isJump)
+	{
+		// 上方向の初速を設定
+		m_Velocity.y = JUMP_SPEED_FIRST;
+		m_isJump = true;
+	}
+}
+
+/// <summary>
+/// 落下開始
+/// </summary>
+void Player::StartFall()
+{
+	if (!m_isJump)
+	{
+		// 上方向の初速を設定
+		m_Velocity.y = 0.0f;
+		m_isJump = true;
+	}
+}
+
+/// <summary>
+/// ジャンプ終了
+/// </summary>
+void Player::StopJump()
+{
+	m_isJump = false;
+	m_Velocity = Vector3::Zero;
 }
